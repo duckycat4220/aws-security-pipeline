@@ -1,0 +1,10 @@
+fastapi==0.115.0
+uvicorn==0.30.6
+boto3==1.35.24
+pydantic==2.9.2
+pydantic-settings==2.5.2
+python-dotenv==1.0.1
+httpx==0.27.2
+pytest==8.3.3
+aws-cdk-lib==2.178.2
+constructs==10.4.2

@@ -1,0 +1,66 @@
+services:
+  localstack:
+    image: localstack/localstack:latest
+    container_name: aws-sip-localstack
+    ports:
+      - "4566:4566"
+    environment:
+      - SERVICES=sqs
+      - AWS_DEFAULT_REGION=us-east-1
+      - SQS_ENDPOINT_STRATEGY=path
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:4566/_localstack/health || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  callback-mock:
+    build:
+      context: .
+      dockerfile: Dockerfile.callback
+    container_name: aws-sip-callback-mock
+    ports:
+      - "8081:8081"
+    healthcheck:
+      test: ["CMD-SHELL", "python3 -c 'import urllib.request; urllib.request.urlopen(\"http://localhost:8081/docs\")'"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+
+  api:
+    build: .
+    container_name: aws-sip-api
+    env_file:
+      - .env
+    environment:
+      - AWS_ENDPOINT_URL=http://localstack:4566
+      - CALLBACK_URL=http://callback-mock:8081/callback
+    ports:
+      - "8000:8000"
+    depends_on:
+      localstack:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "python3 -c 'import urllib.request; urllib.request.urlopen(\"http://localhost:8000/health\")'"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+
+  worker:
+    build: .
+    container_name: aws-sip-worker
+    env_file:
+      - .env
+    environment:
+      - AWS_ENDPOINT_URL=http://localstack:4566
+      - CALLBACK_URL=http://callback-mock:8081/callback
+    command: ["./run_worker.sh"]
+    restart: on-failure
+    depends_on:
+      api:
+        condition: service_healthy
+      callback-mock:
+        condition: service_healthy
