@@ -23,18 +23,18 @@ class SQSService:
 
     def ensure_queues(self) -> str:
         """Create DLQ and main queue with redrive policy. Idempotent."""
-        # 1. Crear DLQ
+        # 1. Create DLQ
         dlq_response = self.sqs.create_queue(QueueName=self.dlq_name)
         dlq_url = dlq_response["QueueUrl"]
 
-        # 2. Obtener ARN de la DLQ
+        # 2. Get DLQ ARN
         dlq_attrs = self.sqs.get_queue_attributes(
             QueueUrl=dlq_url,
             AttributeNames=["QueueArn"],
         )
         dlq_arn = dlq_attrs["Attributes"]["QueueArn"]
 
-        # 3. Crear cola principal con redrive policy
+        # 3. Create main queue with redrive policy
         redrive_policy = json.dumps({
             "deadLetterTargetArn": dlq_arn,
             "maxReceiveCount": str(settings.sqs_max_receive_count),
@@ -90,9 +90,7 @@ class SQSService:
         return new_url
 
     def send_message(self, message: dict) -> dict:
-        """
-        Envía un mensaje a la cola
-        """
+        """Send a message to the queue."""
         queue_url = self.get_queue_url()
 
         response = self.sqs.send_message(
