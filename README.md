@@ -212,7 +212,7 @@ Prompt engineering decisions (`app/services/prompt_engineering.py`):
 | Claude Haiku model | Most cost-effective option for classification explanation tasks |
 | No few-shot examples | Saves ~300 tokens/request — system prompt is sufficient for this task |
 
-Estimated cost per invocation: **~370 input tokens + ~100 output tokens (~$0.003 USD with Haiku)**.
+Estimated cost per invocation: **~370 input tokens + 100 - 150 approx. output tokens ($0.003 USD approx. with Haiku)**.
 
 ## Infrastructure (CDK)
 
@@ -263,6 +263,9 @@ BEDROCK_REGION=us-east-1
 # Callback
 CALLBACK_URL=http://localhost:8081/callback
 CALLBACK_TIMEOUT_SECONDS=10
+
+# Webhook
+CALLBACK_URL=https://webhook.site/replace-me
 ```
 
 > **Note**: When running with Docker Compose, the `environment` section in `docker-compose.yml` overrides `.env` values for `AWS_ENDPOINT_URL` and `CALLBACK_URL` to use container-internal hostnames.
