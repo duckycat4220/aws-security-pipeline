@@ -8,25 +8,25 @@ Built for SOC teams that need to reduce alert triage time by automating the init
 
 ```
                                         ┌──────────────┐
-  Detection Systems ──► POST /events ──►│   SQS Queue   │
-  (EDR, SIEM, IDS)      (FastAPI)       │  + DLQ retry  │
+  Detection Systems ──► POST /events ──►│   SQS Queue  │
+  (EDR, SIEM, IDS)      (FastAPI)       │  + DLQ retry │
                                         └──────┬───────┘
                                                │
-                                        ┌──────▼───────┐
+                                        ┌──────▼────────┐
                                         │    Worker     │
-                                        │  ┌─────────┐  │
-                                        │  │Classify  │  │  Mock SageMaker
-                                        │  │(ML Model)│  │  (rule-based scoring)
-                                        │  └────┬────┘  │
-                                        │  ┌────▼────┐  │
-                                        │  │Explain   │  │  Bedrock / Claude
-                                        │  │(LLM)    │  │  (prompt-engineered)
-                                        │  └────┬────┘  │
+                                        │  ┌───────── ┐ │
+                                        │  │Classify  │ │  Mock SageMaker
+                                        │  │(ML Model)│ │  (rule-based scoring)
+                                        │  └────┬──── ┘ │
+                                        │  ┌────▼─────┐ │
+                                        │  │Explain   │ │  Bedrock / Claude
+                                        │  │(LLM)     │ │  (prompt-engineered)
+                                        │  └────┬─────┘ │
                                         └───────┼───────┘
                                                 │
                                         ┌───────▼───────┐
-                                        │   Callback     │  POST to SIEM
-                                        │  (with retry)  │  dashboard
+                                        │   Callback    │  POST to SIEM
+                                        │  (with retry) │  dashboard
                                         └───────────────┘
 ```
 
